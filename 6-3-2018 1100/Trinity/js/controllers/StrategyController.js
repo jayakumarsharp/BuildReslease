@@ -316,7 +316,7 @@
     }
 
     $scope.GetCurrencyConversionForId = function (id, Version, RefNumber, actiontype) {
-        $scope.showaction = true;
+        //$scope.showaction = true;
         $scope.editMode = true;
         $scope.activateTab(0);
         $scope.ApprovalCheck.ShowSignOff = false;
