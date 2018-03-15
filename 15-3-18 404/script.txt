@@ -1,0 +1,115 @@
+GO
+
+ALTER PROCEDURE [dbo].[sp_addReportApplicationMapping](
+ @i_FTAApplicationNameId VARCHAR(50),
+ @i_FTAApplicationCodeId VARCHAR(50),
+ @i_ChildId VARCHAR(50),
+ @i_ThirdPartyAppId VARCHAR(50),
+ @i_ParentID VARCHAR(50),
+ @i_ApplicationOwnerId VARCHAR(500),
+ @i_ApplicationCategoryId VARCHAR(50),
+ @i_CountryId VARCHAR(50)=null,
+ @i_RegionId VARCHAR(50),
+ @i_BusinessLineId VARCHAR(50),
+ @i_OutParam VARCHAR(50) Output
+ )
+AS
+BEGIN
+SET NOCOUNT ON;
+
+ --IF  exists (SELECT * FROM tbl_reportapplicationmapping WHERE FTAApplicationNameId=@i_FTAApplicationNameId and FTAApplicationCodeId=@i_FTAApplicationCodeId and ChildId=@i_ChildId and ThirdPartyAppId=@i_ThirdPartyAppId and ParentID=@i_ParentID and ApplicationOwnerId=@i_ApplicationOwnerId and ApplicationCategoryId=@i_ApplicationCategoryId and RegionId=@i_RegionId and CountryId=@i_CountryId and BusinessLineId=@i_BusinessLineId) 
+ --set @i_OutParam ='Report Application Mapping already exists';
+ --else 
+ --begin
+
+  
+insert into tbl_reportapplicationmapping(FTAApplicationNameId,FTAApplicationCodeId,ChildId,ThirdPartyAppId,ParentID,ApplicationOwnerId,ApplicationCategoryId,RegionId,CountryId,BusinessLineId) 
+values (@i_FTAApplicationNameId,@i_FTAApplicationCodeId,@i_ChildId,@i_ThirdPartyAppId,@i_ParentID,@i_ApplicationOwnerId,@i_ApplicationCategoryId,@i_RegionId,0 ,@i_BusinessLineId);
+
+insert into tbl_CountryReportMapping (ReportId,CountryId) select @@IDENTITY,Item from SplitString(@i_CountryId,',') 
+set @i_OutParam ='success';
+--ENd;
+
+
+END;
+
+
+
+
+GO
+ALTER  PROCEDURE [dbo].[sp_insert_Strategy](
+ @i_RefNumber VARCHAR(50),
+ @i_RegionId VARCHAR(50),
+ @i_Description VARCHAR(500)=null,
+ @i_FTAApplicationCodeId VARCHAR(50),
+ @i_BusinessSuffixId VARCHAR(50),
+ @i_ChildID VARCHAR(50),
+ @i_FTAStrategyNameId VARCHAR(50),
+ @i_StrategytypeId VARCHAR(50)=null,
+ @i_GOLiveDate VARCHAR(50)=null,
+ @i_FTAStrategyCodeId VARCHAR(50),
+ @i_FTAShortCode VARCHAR(50),
+ @i_BusinessLineId VARCHAR(50),
+ @i_FTAApplicationNameId VARCHAR(50),
+ @i_FTAStrategyOwnerId VARCHAR(50),
+ @i_ApplicationCategoryId VARCHAR(50),
+ @i_DecommissionedDate VARCHAR(50)=null,
+ @i_DiscretionaryCodeId VARCHAR(50),
+ @i_ParentID VARCHAR(50),
+ @i_FTAApplicationOwnerId VARCHAR(50),
+ @i_PriorityScore VARCHAR(50),
+ @i_Priority VARCHAR(50),
+ @i_CapacityId VARCHAR(50),
+ @i_VenueTypeId VARCHAR(50),
+ @i_Version VARCHAR(50),
+ @i_ThirdPartyAppId VARCHAR(50)  ,
+ @i_BusinessId VARCHAR(50),
+ @i_FTAApplicationMappingId VARCHAR(50)    ,
+ @i_FTAStrategyMappingId VARCHAR(50) ,
+ @i_BusinessMappingId VARCHAR(50),
+ @i_SeniorManagementFunction VARCHAR(1500),
+ @i_LTALongCode VARCHAR(1500),
+ @i_SignOff VARCHAR(50) =null ,
+ @i_CountryIdList VARCHAR(100)=null  ,
+ @i_CountryNameList VARCHAR(500)=null,
+ @i_StatusId VARCHAR(50),
+ @i_CreatedBy VARCHAR(500)=null,
+ @i_AdditionalShortCode VARCHAR(500)=null,
+ @i_OutParam VARCHAR(500) OUTPUT
+)
+AS
+BEGIN
+ IF exists (SELECT Id FROM tbl_strategy  WHERE FTAShortCodeId=@i_FTAShortCode and Version=@i_Version) 
+ begin
+ set @i_OutParam ='Strategy Short code already exists';
+ end
+ Else IF exists (SELECT Id FROM tbl_strategy  WHERE FTAShortCodeId=@i_LTALongCode and Version=@i_Version) 
+ begin
+ set @i_OutParam ='Strategy Long code already exists';
+ end
+ else begin
+ begin
+ 
+ update tbl_strategy set isactive ='N' where FTAShortCodeId =@i_FTAShortCode;
+ insert into tbl_strategy(RefNumber, RegionId,  Description,   FTAApplicationCodeId,        BusinessSuffixId,        ChildID,
+        FTAStrategyNameId,StrategytypeId,GOLiveDate,FTAStrategyCodeId,FTAShortCodeId,
+        BusinessLineId,FTAApplicationNameId,FTAStrategyOwnerId,ApplicationCategoryId,VenuetypeId,
+        DeComissionedDate,DiscretionaryCodeId,ParentID,FTAApplicationOwnerId,PriorityScore,Priority,
+        CapacityId,CountryIdList,CountryNameList,IsActive,Version,ThirdPartyAppId,BusinessId,FTAApplicationMappingId,
+		  FTAStrategyMappingId,BusinessMappingId,SignOff,CreatedBy,LTALongCode,SeniorManagementFunction,StatusId
+		  ,AdditionalShortCode) values(@i_RefNumber,
+ @i_RegionId,@i_Description,@i_FTAApplicationCodeId,@i_BusinessSuffixId,@i_ChildID,@i_FTAStrategyNameId,@i_StrategytypeId,
+@i_GOLiveDate,@i_FTAStrategyCodeId,@i_FTAShortCode,@i_BusinessLineId,@i_FTAApplicationNameId,@i_FTAStrategyOwnerId,
+@i_ApplicationCategoryId,@i_VenueTypeId,@i_DecommissionedDate,@i_DiscretionaryCodeId,@i_ParentID,@i_FTAApplicationOwnerId,@i_PriorityScore,
+@i_Priority,@i_CapacityId,@i_CountryIdList,@i_CountryNameList, 'Y',@i_Version,@i_ThirdPartyAppId,@i_BusinessId,@i_FTAApplicationMappingId,@i_FTAStrategyMappingId,@i_BusinessMappingId,
+@i_SignOff,@i_CreatedBy,@i_LTALongCode,@i_SeniorManagementFunction,@i_StatusId,@i_AdditionalShortCode);
+
+
+insert into dbo.tbl_CountryStrategyMapping (StrategyId,CountryId) select @@IDENTITY,Item from SplitString(@i_CountryIdList,',') 
+
+set @i_OutParam ='success';
+end;
+ENd 
+END;
+
+
