@@ -1,0 +1,153 @@
+/*
+
+alter user table column
+user script
+application report
+strategy script
+
+add below line in web.config
+
+    <add key="DefaultPassword" value="welcome@123" />
+after below line
+
+  <appSettings>
+    <add key="webpages:Version" value="2.0.0.0" />
+
+
+*/
+
+ALTER TABLE tbl_user_master
+  ADD IsPasswordReset bit;
+
+update tbl_user_master set IsPasswordReset=0;
+
+
+alter PROCEDURE [dbo].[sp_adduser1](
+ @userid VARCHAR(50),
+ @username VARCHAR(50),
+ @emailid VARCHAR(50),
+ @Roleid VARCHAR(50),
+@password NVARCHAR(max),
+ @IsADUser VARCHAR(50)
+)
+AS
+BEGIN
+
+insert into tbl_user_master (Userid,UserName,EmailId,RoleId,Status,password,IsADUser,IsPasswordReset) values(@userid,@username,@emailid,@Roleid,'Active',@password,@IsADUser,1);
+END;
+
+GO
+/****** Object:  StoredProcedure [dbo].[SP_ApplicationReport]    Script Date: 3/27/2018 9:30:41 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create PROCEDURE [dbo].[SP_ApplicationReport](
+ @i_BusinessLine VARCHAR(50)=null,
+ @i_Region VARCHAR(50)=null,
+ @i_FTAApplicationOwner VARCHAR(50)=null,
+ @i_ApplicationCategory VARCHAR(50)=null,
+ @i_ThirdPartyAppId VARCHAR(50)=null,
+ @i_userid VARCHAR(250)=null
+)
+AS
+BEGIN
+declare @Sql nvarchar(max);
+declare @dynamicsql nvarchar(max);
+declare @countryfilerSql nvarchar(max);
+
+SET @sql='select FAM.Id, FAM.FTAApplicationNameId,FANM.FTAApplicationName,FAM.FTAApplicationCodeId,
+ FACM.FTAApplicationCode,
+ FAM.ChildId,CM.ChildID as ChildIDValue, FAM.ThirdPartyAppId,TM.ThirdPartyAppName,
+  FAM.ParentID as ParentIDValue,PM.ParentId, FAM.ApplicationOwnerId ,FAM.ApplicationCategoryId,
+  AM.ApplicationCategory,
+  FAM.BusinessLineId,BM.BusinessLine
+  ,FAM.RegionId,R.RegionName,CountryId=STUFF
+  (  
+    (  
+      SELECT DISTINCT '', ''+ CAST( C.id AS VARCHAR(MAX))  
+      FROM tbl_country_master C,tbl_CountryReportMapping e   
+      WHERE C.iD=e.CountryId and e.ReportId=FAM.Id   
+      FOR XMl PATH('''')  
+    ),1,1,''''  
+),
+  CountryName=STUFF  
+(  
+    (  
+      SELECT DISTINCT '', ''+ CAST( C.CountryName AS VARCHAR(MAX))  
+      FROM tbl_country_master C,tbl_CountryReportMapping e   
+      WHERE C.iD=e.CountryId and e.ReportId=FAM.Id   
+      FOR XMl PATH('''')  
+    ),1,1,''''  
+)  
+  
+  from tbl_reportapplicationmapping FAM
+ join tbl_ftaapplicationname_master FANM on FAM.FTAApplicationNameId=FANM.Id
+ join tbl_ftaapplicationcode_master FACM on FAM.FTAApplicationCodeId=FACM.Id
+ join tbl_childid_master CM on FAM.ChildId=CM.Id
+ join tbl_thirdpartyapplication TM on FAM.ThirdPartyAppId=TM.Id
+  join tbl_user_master UM on UM.Userid=FAM.ApplicationOwnerId
+ join tbl_parentId_master PM on PM.Id=FAM.ParentId
+ join tbl_applicationcategory_Master AM on AM.Id =FAM.ApplicationCategoryId
+ join tbl_businessline_master BM on bm.Id=FAM.BusinessLineId
+ JOIN tbl_region_master R on R.Id=FAM.RegionId';
+
+
+SET @dynamicsql='';
+
+if (@i_businessline IS NOT NULL and @i_businessline != '') begin
+
+SET @dynamicsql=@dynamicsql+'  and BusinessLineId in ('+@i_businessline+')';
+end 
+
+
+if (@i_region IS NOT NULL and @i_region != '') begin
+	
+SET  @dynamicsql=@dynamicsql+'  and FAM.RegionId in ('+@i_region+')';
+end 
+
+
+if (@i_FTAApplicationOwner IS NOT NULL and @i_FTAApplicationOwner  != '') begin
+
+SET  @dynamicsql=@dynamicsql+' and FAM.ApplicationOwnerId    Like ''%'+@i_FTAApplicationOwner+'%''';
+end 
+
+
+if (@i_ApplicationCategory IS NOT NULL and @i_ApplicationCategory != '') begin
+	
+SET  @dynamicsql=@dynamicsql+'  and ApplicationCategoryId='+@i_ApplicationCategory;
+end 
+
+
+if (@i_ThirdPartyAppId IS NOT NULL and @i_ThirdPartyAppId != '') begin
+	
+SET  @dynamicsql=@dynamicsql+'  and ThirdPartyAppId='+@i_ThirdPartyAppId;
+end 
+
+SET  @sql=@sql +@dynamicsql;
+
+	
+print(@sql)
+EXECUTE (@sql);
+
+END;
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_resetuser]    Script Date: 3/27/2018 9:30:41 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_resetuser](
+ @userid VARCHAR(50),
+ @emailid VARCHAR(50)=null,
+ @password NVARCHAR(max),
+ @IsPasswordReset bit
+)
+AS
+BEGIN
+--if exists(select userid from tbl_user_master where Userid=@userid and IsPasswordReset=1)
+update tbl_user_master set IsPasswordReset=@IsPasswordReset,password=@password where Userid=@userid;
+END;
+
+GO
