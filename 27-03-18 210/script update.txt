@@ -1,0 +1,8 @@
+delete from [dbo].[tbl_user_master] where userid='Sivakumar'
+GO
+SET IDENTITY_INSERT [dbo].[tbl_user_master] ON 
+
+INSERT [dbo].[tbl_user_master] ([Id], [Userid], [UserName], [BusinessSectorId], [RoleId], [Password], [EmailId], [MobileNumber], [CustomData], [Status], [UserExpiryDate], [PasswordExpiryDate], [UserBlockDate], [AttemptTries], [LastAuthenticatedDate], [LastUsedDate], [CreatedDate], [CreatedBy], [ModifiedDate], [ModifiedBy], [ApprovedDate], [Approvedby], [MakerComment], [CheckerComment], [IsADUser], [RegionId], [CountryId], [FirstWorkingDate], [LastWorkingDate], [IsPasswordReset]) VALUES (1, N'Sivakumar', N'Sivakumar', NULL, N'1', N'd2VsY29tZUAxMjM=', N'Sivakumar@coba.com', NULL, NULL, N'Active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, N'No', NULL, NULL, NULL, NULL, 0)
+GO
+SET IDENTITY_INSERT [dbo].[tbl_user_master] OFF
+GO
