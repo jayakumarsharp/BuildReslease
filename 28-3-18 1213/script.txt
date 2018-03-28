@@ -1,0 +1,12 @@
+
+update [tbl_right_master] set menuname='Mapping Data' where menuname='Mapping Page'
+update [tbl_right_master] set menuname='Master Data' where menuname='Master Page'
+
+update [tbl_right_master] set rightname='Master Data Read' where rightname='Master Page Read'
+update [tbl_right_master] set rightname='Master Data Write' where rightname='Master Page Write'
+update [tbl_right_master] set rightname='Mapping Data Read' where rightname='Mapping Page Read'
+update [tbl_right_master] set rightname='Mapping Data Write' where rightname='Mapping Page Write'
+update [tbl_right_master] set rightname='LTA Attestation' where rightname='LTA Strategy Owner'
+
+
+INSERT [dbo].[tbl_right_master] ([RightID], [RightName], [MenuName], [Path], [Icon], [ShowMenu], [IsActive]) VALUES (15, N'LTA Application Inventory Write', N'LTA Application Inventory', N'ReportApplicationMapping', N'fa fa-archive', N'true', N'Y')
