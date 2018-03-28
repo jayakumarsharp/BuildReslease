@@ -1,0 +1,57 @@
+ALTER PROCEDURE [dbo].[sp_getFTAApplicationMapping](
+	@i_Id VARCHAR(50)=null
+)
+as
+BEGIN
+if(@i_Id !='') 
+ select FAM.Id, FAM.FTAApplicationNameId,FANM.FTAApplicationName,FAM.FTAApplicationCodeId,FACM.FTAApplicationCode,
+ FAM.ChildId,CM.ChildID as ChildIDValue, FAM.ThirdPartyAppId,TM.ThirdPartyAppName,
+ FAM.ParentID as ParentIDValue,PM.ParentId, FAM.ApplicationOwnerId ,FAM.ApplicationCategoryId,AM.ApplicationCategory 
+  from tbl_ftaapplicationmapping FAM 
+ join tbl_ftaapplicationname_master FANM on FAM.FTAApplicationNameId=FANM.Id
+ join tbl_ftaapplicationcode_master FACM on FAM.FTAApplicationCodeId=FACM.Id
+ join tbl_childid_master CM on FAM.ChildId=CM.Id
+ join tbl_thirdpartyapplication TM on FAM.ThirdPartyAppId=TM.Id
+ --join tbl_user_master UM on UM.Userid=FAM.ApplicationOwnerId
+ join tbl_parentId_master PM on PM.Id=FAM.ParentId
+ join tbl_applicationcategory_Master AM on AM.Id =FAM.ApplicationCategoryId
+ where FAM.Id=@i_id;
+else
+ select FAM.Id, FAM.FTAApplicationNameId,FANM.FTAApplicationName,FAM.FTAApplicationCodeId,FACM.FTAApplicationCode,
+ FAM.ChildId,CM.ChildID as ChildIDValue, FAM.ThirdPartyAppId,TM.ThirdPartyAppName,
+  FAM.ParentID as ParentIDValue,PM.ParentId, FAM.ApplicationOwnerId ,FAM.ApplicationCategoryId,AM.ApplicationCategory
+  from tbl_ftaapplicationmapping FAM 
+ join tbl_ftaapplicationname_master FANM on FAM.FTAApplicationNameId=FANM.Id
+ join tbl_ftaapplicationcode_master FACM on FAM.FTAApplicationCodeId=FACM.Id
+ join tbl_childid_master CM on FAM.ChildId=CM.Id
+ join tbl_thirdpartyapplication TM on FAM.ThirdPartyAppId=TM.Id
+  --join tbl_user_master UM on UM.Userid=FAM.ApplicationOwnerId
+ join tbl_parentId_master PM on PM.Id=FAM.ParentId
+ join tbl_applicationcategory_Master AM on AM.Id =FAM.ApplicationCategoryId;
+end
+
+
+
+GO
+
+ALTER  PROCEDURE [dbo].[sp_getFTAApplicationMappingbyId]
+(
+ @i_Id INT
+)
+AS
+BEGIN
+--if(@i_Id =null)
+
+select FAM.Id, FAM.FTAApplicationNameId,FANM.FTAApplicationName,FAM.FTAApplicationCodeId,FACM.FTAApplicationCode,
+ FAM.ChildId,CM.ChildID as ChildIDValue, FAM.ThirdPartyAppId,TM.ThirdPartyAppName, FAM.ParentID as ParentIDValue,PM.ParentId,
+  FAM.ApplicationOwnerId ,FAM.ApplicationCategoryId,AM.ApplicationCategory 
+  from tbl_ftaapplicationmapping FAM 
+ join tbl_ftaapplicationname_master FANM on FAM.FTAApplicationNameId=FANM.Id
+ join tbl_ftaapplicationcode_master FACM on FAM.FTAApplicationCodeId=FACM.Id
+ join tbl_childid_master CM on FAM.ChildId=CM.Id
+ join tbl_thirdpartyapplication TM on FAM.ThirdPartyAppId=TM.Id
+ --join tbl_user_master UM on UM.Userid=FAM.ApplicationOwnerId
+ join tbl_parentId_master PM on PM.Id=FAM.ParentId
+ join tbl_applicationcategory_Master AM on AM.Id =FAM.ApplicationCategoryId
+ where FAM.FTAApplicationNameId=@i_id;
+END;
